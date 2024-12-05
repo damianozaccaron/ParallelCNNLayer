@@ -7,16 +7,11 @@ double ** random_matrix (int rows, int columns)
 {   
     int i, j;
     double ** arr = (double **)malloc(rows * sizeof(double *));
-    for (i = 0; i<rows; i++)
-    {
-        arr[i] = (double *)malloc(columns * sizeof(double));
-    }
-
-    srand(time(0));
 
     for (i = 0; i < rows; i++)
 
     {
+        arr[i] = (double *)malloc(columns * sizeof(double));
         for (j = 0; j < columns; j++)
         {
             arr[i][j] = rand() % 10;

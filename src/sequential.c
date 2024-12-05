@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
+
 
 #include "random_matrix.c"
 
@@ -29,34 +31,41 @@ int main()
     /* Not really necessary in the sequential version
     double * flattened_matrix = flatten_matrix(my_matrix, NROWS, NCOLS);
     */
-
     for (i = 0; i < NROWS; i++) //Iterates through the rows of the original matrix
-    {
+    {   
+        printf("Entering ROW %d\n", i);
         for (j = 0; j < NCOLS; j++) //Iterates through the columns
         {
+            printf("Entering COLUMN %d\n", j);
+
             for (k = 0; k < KER_SIZE; k++) //Iterates through the rows of the kernel
             {
                 for (l = 0; l < KER_SIZE; l++) //Iterates through the columns of the kernel
                 {
-                    row_idx = i - (k - 1); //This is because the first row of the kernel only adds to the second line (so -(-1) = +1)
-                    col_idx = j - (l - 1);
-                    printf("The first indexes are %d, %d\n", row_idx, col_idx);
-                    if (col_idx >= 0 && col_idx < NCOLS - (KER_SIZE-1) && row_idx >= 0 && row_idx < NROWS - (KER_SIZE-1))
-                    {
-                        result[row_idx][col_idx] += my_matrix[i][j] * kernel[k][l];
-                        printf("\n");
-                        print_matrix(result, NROWS - (KER_SIZE - 1) ,(NCOLS - (KER_SIZE - 1)));
-                        printf("\n");
-                    }
+                    row_idx = i - (k - (KER_SIZE / 2));//This is because the first row of the kernel only adds to the second line (so -(-1) = +1)
+                    col_idx = j - (l - (KER_SIZE / 2));
+
+                    if (row_idx >= 0 && row_idx < NROWS - (KER_SIZE - 1) &&
+                        col_idx >= 0 && col_idx < NCOLS - (KER_SIZE - 1)) 
+                        {
+                            result[row_idx][col_idx] += my_matrix[i][j] * kernel[k][l];
+                        }
                 }
             }
         }
     }
 
+
+    print_matrix(result, NROWS - (KER_SIZE - 1), NCOLS - (KER_SIZE - 1));
+
+
+
+
     
     free_matrix(my_matrix, NROWS);
-    free_matrix(kernel, NROWS);
+    free_matrix(kernel, KER_SIZE);
     free_matrix(result, NROWS - (KER_SIZE - 1));
 
     return 0;
 }
+
