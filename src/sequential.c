@@ -26,7 +26,6 @@ int main()
     printf("\n");
     print_matrix(kernel, KER_SIZE, KER_SIZE);
     printf("\n");
-    print_matrix(result, NROWS - (KER_SIZE - 1) ,(NCOLS - (KER_SIZE - 1)));
     int row_idx, col_idx; //Not necessary, let's put it for now
     /* Not really necessary in the sequential version
     double * flattened_matrix = flatten_matrix(my_matrix, NROWS, NCOLS);
@@ -42,8 +41,8 @@ int main()
             {
                 for (l = 0; l < KER_SIZE; l++) //Iterates through the columns of the kernel
                 {
-                    row_idx = i - (k - (KER_SIZE / 2));//This is because the first row of the kernel only adds to the second line (so -(-1) = +1)
-                    col_idx = j - (l - (KER_SIZE / 2));
+                    row_idx = i - k;//This is because the first row of the kernel only adds to the second line (so -(-1) = +1)
+                    col_idx = j - l;
 
                     if (row_idx >= 0 && row_idx < NROWS - (KER_SIZE - 1) &&
                         col_idx >= 0 && col_idx < NCOLS - (KER_SIZE - 1)) 
