@@ -54,3 +54,14 @@ void print_matrix(double ** matrix, int rows, int columns) {
         printf(")\n");
     }
 }
+
+void print_vector(double * vector, int size)
+{   
+    int i;
+    printf("(");
+    for (i = 0; i < size; i++)
+        {
+            printf("%f\t", vector[i]);
+        }
+    printf(")\n");
+}
