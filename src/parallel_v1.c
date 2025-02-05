@@ -79,15 +79,14 @@ int main()
         {
             for (k = 0; k < KER_SIZE * KER_SIZE; k++)
             {
-                row_idx = i - k / KER_SIZE; //This is the row of the result matrix our product would be added to (if the result were a matrix)
+                row_idx = i / NCOLS + (rows_per_process * my_rank) - k / KER_SIZE; //This is the row of the result matrix our product would be added to (if the result were a matrix)
                 col_idx = i % NCOLS - k % KER_SIZE; //Same for the columns
-
-                printf("Row index: %d, Col index: %d\n", row_idx, col_idx);
+                // printf("Row index: %d, Col index: %d\n", row_idx, col_idx);               
                 if (row_idx >= 0 && row_idx < NROWS - (KER_SIZE - 1) &&
                     col_idx >= 0 && col_idx < NCOLS - (KER_SIZE - 1)) 
                         {
                             local_res[row_idx * rows_per_process + col_idx] += local_matrix[i] * flattened_kernel[k];
-                            printf("aggiungo nel posto %d il numero %f\n", row_idx * rows_per_process + col_idx, local_matrix[i] * flattened_kernel[k]);
+                            //printf("aggiungo nel posto %d il numero %f\n", row_idx * rows_per_process + col_idx, local_matrix[i] * flattened_kernel[k]);
                         }
             }
 
