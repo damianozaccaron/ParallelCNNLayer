@@ -33,6 +33,18 @@ double * flatten_matrix (double ** matrix,int rows,int columns)
 
 }
 
+void flatten_matrix_ptr (double * pointer, double ** matrix, int rows, int columns)
+{
+    int i, j;
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < columns; j++) {
+            pointer[i * columns + j] = matrix[i][j];
+        }
+    }
+}
+
+
+
 void free_matrix (double ** matrix, int rows)
 {
     int i;
