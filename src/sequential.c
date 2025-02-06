@@ -10,18 +10,18 @@
 #define NROWS 5
 #define NCOLS 5
 */
-#define KER_SIZE 3
-#define NUMBER_OF_TESTS 10
+#define KER_SIZE 5
+#define MAX_SIZE 100000
 
 int main()
 {   
-    printf("n\ttime\n");
+    printf("Kernel size:%d\nn\ttime\n", KER_SIZE);
     int n;
-    for (n = 2; n < NUMBER_OF_TESTS; n++)
+    for (n = 65536; n < MAX_SIZE; n*=2)
         {
-        int NCOLS = pow(2, n);
-        int NROWS = pow(2, n);
-    
+        int NCOLS = n;
+        int NROWS = n;
+        
         double ** my_matrix = random_matrix(NROWS, NCOLS);
         double ** kernel = random_matrix(KER_SIZE, KER_SIZE);
         int i,j, k, l, x, y;

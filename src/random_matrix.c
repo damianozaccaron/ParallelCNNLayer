@@ -20,6 +20,21 @@ double ** random_matrix (int rows, int columns)
     return arr;
 }
 
+
+void random_flat_matrix_ptr (double * pointer, int rows, int columns)
+{   
+    int i, j;
+    
+    for (i = 0; i < rows; i++)
+
+    {
+        for (j = 0; j < columns; j++)
+        {
+            pointer[i * columns +j] = rand() % 10;
+        }
+    }
+}
+
 double * flatten_matrix (double ** matrix,int rows,int columns)
 {
     double * result = (double *)malloc(rows*sizeof(double));

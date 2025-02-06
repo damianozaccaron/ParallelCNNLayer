@@ -1,0 +1,13 @@
+Assertion failed in file src/mpi/coll/helper_fns.c at line 84: ((sendbuf)) != NULL
+Assertion failed in file src/mpi/coll/helper_fns.c at line 84: ((sendbuf)) != NULL
+internal ABORT - process 18
+Assertion failed in file src/mpi/coll/helper_fns.c at line 84: ((sendbuf)) != NULL
+internal ABORT - process 6
+Assertion failed in file src/mpi/coll/helper_fns.c at line 84: ((sendbuf)) != NULL
+Assertion failed in file src/mpi/coll/helper_fns.c at line 84: ((sendbuf)) != NULL
+internal ABORT - process 30
+internal ABORT - process 2
+internal ABORT - process 26
+Assertion failed in file src/mpi/coll/helper_fns.c at line 84: ((sendbuf)) != NULL
+Assertion failed in file src/mpi/coll/helper_fns.c at line 84: ((sendbuf)) != NULL
+internal ABORT - process 10
