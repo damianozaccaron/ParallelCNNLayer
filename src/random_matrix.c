@@ -97,3 +97,8 @@ void print_vector(double * vector, int size)
         }
     printf(")\n");
 }
+
+double relu(double x) {
+    // Activation function
+    return (x > 0.0) ? x : 0.0;
+}
