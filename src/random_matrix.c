@@ -12,9 +12,14 @@ double ** random_matrix (int rows, int columns)
 
     {
         arr[i] = (double *)malloc(columns * sizeof(double));
+        if (arr[i] == NULL) {
+            fprintf(stderr, "Memory allocation failed for matrix row %d\n", i);
+            exit(1);
+        }
         for (j = 0; j < columns; j++)
         {
             arr[i][j] = rand() % 10;
+
         }
     }
     return arr;
