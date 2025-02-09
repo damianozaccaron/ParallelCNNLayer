@@ -42,7 +42,7 @@ void random_flat_matrix_ptr (double * pointer, int rows, int columns)
 
 double * flatten_matrix (double ** matrix,int rows,int columns)
 {
-    double * result = (double *)malloc(rows*sizeof(double));
+    double * result = (double *)malloc(rows * columns * sizeof(double));
     int i, j;
     for (i = 0; i < rows; i++) {
         for (j = 0; j < columns; j++) {
