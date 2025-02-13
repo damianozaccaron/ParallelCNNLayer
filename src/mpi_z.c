@@ -20,32 +20,35 @@ int main(int argc, char *argv[])
     if (argv[2]) { 
         max_size = atoi(argv[2]); 
     } else { 
-        max_size = 10; 
+        max_size = 13; 
     }
-    
-    int stride = 1;
+
     double bias = ((double)rand() / RAND_MAX) - 0.5;
-    
+
+
+    ker_size = 101;
+
     int comm_sz, my_rank;
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-    if (my_rank == 0) {
-        printf("Kernel size:%d, Stride:%d, Bias:%f\tcores:%d\nn\ttime\n", ker_size, stride, bias, comm_sz);
-    }
 
+    if (my_rank == 0) {
+        printf("Kernel size:%d, Bias:%f\tcores:%d\nn\ttime\n", ker_size, bias, comm_sz);
+    }
     int n;
     // n is the size of the input (unpadded) matrix.
     for (n = 6; n < max_size; n ++)
     {
         double tmin = -1.0;
-        int nloop = 1000 / n;
-        if (nloop == 0) { nloop = 1; }
+
         double t1, t2;
         int j;
         int NCOLS = pow(2, n);
         int NROWS = pow(2, n);
+        int nloop = 1000 / NCOLS;
+        if (nloop == 0) { nloop = 1; }
 
         int pad = (ker_size - 1) / 2;
 
@@ -54,8 +57,8 @@ int main(int argc, char *argv[])
         int padded_NCOLS = NCOLS + 2 * pad;
         
         // Output dimensions
-        int out_rows = (padded_NROWS - (ker_size - 1) / 2);
-        int out_cols = (padded_NCOLS -  (ker_size - 1) / 2);
+        int out_rows = (padded_NROWS - (ker_size - 1));
+        int out_cols = (padded_NCOLS -  (ker_size - 1));
         
         // padded_NROWS should be divisible by comm_sz if scatterv is not implemented
         int base = padded_NROWS / comm_sz;
@@ -100,7 +103,7 @@ int main(int argc, char *argv[])
                 MPI_Abort(MPI_COMM_WORLD, 1);
             }
             
-            double *flattened_padded_matrix = NULL;  // ONly process 0
+            double *flattened_padded_matrix = NULL;  // Only process 0
             double *result = NULL;  // Final result
             int row_idx, col_idx; 
             int i, k;
@@ -143,7 +146,6 @@ int main(int argc, char *argv[])
             
             MPI_Barrier(MPI_COMM_WORLD);
             t1 = MPI_Wtime();
-            
             // Broadcast the kernel
             MPI_Bcast(flattened_kernel, ker_size * ker_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
             // Scatter the flattened padded matrix
@@ -174,7 +176,16 @@ int main(int argc, char *argv[])
 
 
             MPI_Reduce(local_res, result, out_rows * out_cols, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-            
+
+            if (my_rank == 0)
+            {   
+                int l;
+                for (l = 0; l < out_cols*out_rows; l++)
+                {
+                    result[l] = relu(result[l]);
+                }
+            } //We apply the activation function to the result matrix.
+
             t2 = MPI_Wtime() - t1;
             if (tmin < 0 || t2 < tmin) { tmin = t2; }
             
