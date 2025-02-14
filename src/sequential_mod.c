@@ -7,7 +7,7 @@
 
 #include "random_matrix.c"
 
-#define NUMBER_OF_TESTS 17
+#define NUMBER_OF_TESTS 15
 
 int main()
 {   
