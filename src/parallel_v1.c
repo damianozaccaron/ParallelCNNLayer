@@ -11,9 +11,9 @@
 int main(int argc, char *argv[])
 {
     int ker_size, max_size;
-    if (argv[1]) {ker_size = atoi(argv[1]);}
+    if (argv[1] != 0) {ker_size = atoi(argv[1]);}
     else {ker_size = 3;}
-    if (argv[2]) {max_size = atoi(argv[2]);}
+    if (argv[2] != 0) {max_size = atoi(argv[2]);}
     else {max_size = 9000;}
     int comm_sz, my_rank;
 
@@ -60,28 +60,15 @@ int main(int argc, char *argv[])
 
             if (my_rank == 0)
             {
-                /*
-                double ** my_matrix = random_matrix(NROWS, NCOLS); // initialize a random matrix
-                flattened_matrix = (double *) malloc (NROWS * NCOLS * sizeof(double));
-                print_matrix(my_matrix, NROWS, NCOLS);
-                printf("\n");
-                print_matrix(kernel, ker_size, ker_size);
-                printf("\n");
-                
-                flatten_matrix_ptr(flattened_kernel, kernel, ker_size, ker_size);
-                flatten_matrix_ptr(flattened_matrix, my_matrix, NROWS, NCOLS);
-                */
+
                 flattened_matrix = (double *)malloc(NROWS*NCOLS*sizeof(double));
 
                 double ** kernel = random_matrix(ker_size, ker_size); //initialize a random kernel
-                flatten_matrix_ptr(flattened_kernel, kernel, ker_size, ker_size);
 
+                flatten_matrix_ptr(flattened_kernel, kernel, ker_size, ker_size);
                 
-                random_flat_matrix_ptr(flattened_matrix, NROWS, NCOLS);
-                //result =(double *)malloc((NROWS - (ker_size - 1)) * (NCOLS - (ker_size - 1)) * sizeof(double));
-                //print_vector(flattened_matrix, NROWS*NCOLS);
-                //free_matrix(my_matrix, NROWS);  //WE should be able to free the allocated space for the original matrix and kernal
-                if (n > 10000) {print_vector (flattened_matrix, 50);}
+                random_flat_matrix_ptr(flattened_matrix, NROWS, NCOLS); //Initialize a random flattened matrix
+
                 free_matrix(kernel, ker_size);
                 result = (double *)malloc((NROWS - (ker_size - 1)) * (NCOLS - (ker_size - 1)) * sizeof(double));
                 

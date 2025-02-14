@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     double bias = ((double)rand() / RAND_MAX) - 0.5;
 
 
-    ker_size = 51;
+    ker_size = 101;
 
     int comm_sz, my_rank;
     MPI_Init(NULL, NULL);

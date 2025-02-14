@@ -14,10 +14,10 @@ int main()
     
     int n;
 
-    int ker_sizes[5] = {3, 11, 25, 51, 101};   
+    int ker_sizes[3] = {3, 25, 51};   
     int bench_idk;
         
-    for (bench_idk = 0; bench_idk < 5; bench_idk++)
+    for (bench_idk = 0; bench_idk < 3; bench_idk++)
     {
         int ker_size = ker_sizes[bench_idk];
         printf("Kernel size: %d\nn\ttime (micro)\tseconds\n", ker_size);
