@@ -7,7 +7,7 @@
 
 #include "random_matrix.c"
 
-#define NUMBER_OF_TESTS 15
+#define NUMBER_OF_TESTS 16
 
 int main()
 {   
@@ -22,7 +22,7 @@ int main()
         int ker_size = ker_sizes[bench_idk];
         printf("Kernel size: %d\nn\ttime (micro)\tseconds\n", ker_size);
 
-        for (n = 14; n < NUMBER_OF_TESTS; n++)
+        for (n = 15; n < NUMBER_OF_TESTS; n++)
         {
             int j, nloop;
             int NCOLS = pow(2, n);
