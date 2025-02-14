@@ -7,22 +7,24 @@
 
 #include "random_matrix.c"
 
-#define NUMBER_OF_TESTS 16
 
-int main()
-{   
-    
+int main(int argc, char *argv[])
+{
+    // Needs to be corrected since it doesn't work without inputs
+    int ker_size, max_size;
+    if (argv[1]) { 
+        ker_size = atoi(argv[1]); 
+    } else { 
+        ker_size = 3; 
+    }
+    if (argv[2]) { 
+        max_size = atoi(argv[2]); 
+    } else { 
+        max_size = 13; 
+    }
+
     int n;
-
-    int ker_sizes[3] = {3, 25, 51};   
-    int bench_idk;
-        
-    for (bench_idk = 0; bench_idk < 3; bench_idk++)
-    {
-        int ker_size = ker_sizes[bench_idk];
-        printf("Kernel size: %d\nn\ttime (micro)\tseconds\n", ker_size);
-
-        for (n = 15; n < NUMBER_OF_TESTS; n++)
+        for (n = 15; n < max_size; n++)
         {
             int j, nloop;
             int NCOLS = pow(2, n);
@@ -103,6 +105,6 @@ int main()
                 }
             printf("%d\t%.2f\n", n, tmin); 
         }
-    }
+    
     return 0;
 }
