@@ -3,21 +3,38 @@
 #include <assert.h>
 #include <sys/time.h>
 #include <omp.h>
+#include <string.h>
 
 #include "random_matrix.c"
-
-#define KER_SIZE 3
-#define NUMBER_OF_TESTS 10
 
 #define STRIDE 1
 #define PAD 1
 
-int main() {   
-    printf("n\ttime\tseconds\n");
-    int n;
+int main(int argc, char *argv[]) {   
+    // Needs to be corrected since it doesn't work without inputs
+    int KER_SIZE, max_size;
+    if (argv[1]) { 
+        KER_SIZE = atoi(argv[1]); 
+    } else { 
+        KER_SIZE = 3; 
+    }
+    if (argv[2]) { 
+        max_size = atoi(argv[2]); 
+    } else { 
+        max_size = 14; 
+    }
 
-    int start;
-    for (n = start; n < start + NUMBER_OF_TESTS; n++) {
+    
+    // Introducing a bias randomly chosen between -0.5 and 0.5 
+    // in reality it would be optimised through backpropagation
+    double bias = ((double)rand() / RAND_MAX) - 0.5;
+
+    int max_threads = omp_get_max_threads();
+    printf("Kernel size:%d, Bias:%f, Threads:%d\nn\ttime\n", KER_SIZE, bias, max_threads);
+    
+    int n;
+    // n is the size of the input (unpadded) matrix.
+    for (n = 7; n <= max_size; n ++){
         int NCOLS = pow(2, n);
         int NROWS = pow(2, n);
 
@@ -35,12 +52,6 @@ int main() {
             fprintf(stderr, "Failed to allocate kernel matrix.\n");
             exit(1);
         }
-
-        struct timeval init, end;
-
-        // Introducing a bias randomly chosen between -0.5 and 0.5 
-        // in reality it would be optimised through backpropagation
-        double bias = ((double)rand() / RAND_MAX) - 0.5;
 
         // Implementing padding matrix
         int padded_rows = NROWS + 2 * PAD;
@@ -87,36 +98,50 @@ int main() {
             result[i] = &result_data[i * result_cols]; 
         }
 
-        gettimeofday(&init, NULL);
+        // Repeat the process many times and take the minimum (?)
+        int nloop = 1000 / NCOLS;
+        if (nloop == 0) {nloop = 1;}
+        double tmin = -1.0;
 
-        #pragma omp parallel for collapse(2) private(k, l) schedule(static)
-        for (x = 0; x < result_rows; x++) {
-            for (y = 0; y < result_cols; y++) {
-                double sum = bias; // we start with the bias
+        int rep;
+        for (rep = 0; rep < nloop; rep++) {
+            memset(result_data, 0, result_rows * result_cols * sizeof(double));
 
-                // Going over the kernel to perform convolution
-                for (k = 0; k < KER_SIZE; k++) { // kernel rows
-                    for (l = 0; l < KER_SIZE; l++) { // kernel columns
-                        int row = x * STRIDE + k;
-                        int col = y * STRIDE + l;
-                        sum += padded_input[row][col] * kernel[k][l];
+            double t_start = omp_get_wtime();
+
+            #pragma omp parallel for collapse(2) private(k, l) schedule(static)
+            for (x = 0; x < result_rows; x++) {
+                for (y = 0; y < result_cols; y++) {
+                    double sum = bias; // Start with the bias
+                    // Perform convolution over the kernel window
+                    for (k = 0; k < KER_SIZE; k++) {
+                        for (l = 0; l < KER_SIZE; l++) {
+                            int row = x * STRIDE + k;
+                            int col = y * STRIDE + l;
+                            sum += padded_input[row][col] * kernel[k][l];
+                        }
                     }
+                    // Apply ReLU
+                    result[x][y] = relu(sum);
                 }
-                // Applying the activation function
-                result[x][y] = relu(sum);  // No race condition since x and y are unique for each thread
+            }
+
+            double t_end = omp_get_wtime();
+            double elapsed = t_end - t_start;
+            if (tmin < 0 || elapsed < tmin) {
+                tmin = elapsed;
             }
         }
 
-        gettimeofday(&end, NULL);
-        
-        long seconds = end.tv_sec - init.tv_sec;
-        long micros = ((seconds * 1000000) + end.tv_usec) - (init.tv_usec);
-        printf("%d\t%ld\t%ld\n", NROWS, micros, seconds);
+        printf("%d\t%.06f\n", n, tmin);
 
         free_matrix(input_matrix, NROWS);
         free_matrix(kernel, KER_SIZE);
-        free_matrix(result, result_rows);
-        free_matrix(padded_input,padded_rows);
+        
+        free(padded_data);  
+        free(padded_input);  
+        free(result_data);
+        free(result);
     }
     return 0;
 }
