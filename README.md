@@ -16,19 +16,19 @@ The functions take as arguments $KER_SIZE and $MAX_SIZE
 To run the MPI application it must first be compiled:
 ```
 module load mpich-3.2
-mpicc -g -Wall -o mpi_z mpi_z.c -lm
+mpicc -g -Wall -o src/mpi_z src/mpi_z.c -lm
 ```
 Then run the PBS submission:
 ```
-qsub mpi.sh
+qsub src/mpi.sh
 ```
 changing the input parameters as necessary
 
 The same must be done for the OMP application:
 ```
-
+gcc -g -Wall -fopenmp -o src/openmp src/parallel_openmp.c -lm
 ```
 Then run the PBS submission:
 ```
-qsub omp.sh
+qsub src/omp.sh
 ```
