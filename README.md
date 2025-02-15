@@ -8,9 +8,6 @@ Project for the HPC for Data Science Course at UniTrento, by Damiano Zaccaron an
 
 The tests folder contains our benchmark results that were also used for our report analysis.
 
-To replicate the results utilize the sample PBS submissions in the source folder and follow the directives described in the report.
-The functions take as arguments $KER_SIZE and $MAX_SIZE
-
 # Running the applications
 
 To run the MPI application it must first be compiled:
@@ -32,3 +29,4 @@ Then run the PBS submission:
 ```
 qsub src/omp.sh
 ```
+The functions take as arguments $KER_SIZE and $MAX_SIZE
