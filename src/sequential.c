@@ -2,103 +2,109 @@
 #include <math.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "matrix_utilities.c"
 
 
-#include "random_matrix.c"
+int main(int argc, char *argv[])
+{
+    // Needs to be corrected since it doesn't work without inputs
+    int ker_size, max_size;
+    if (argv[1]) { 
+        ker_size = atoi(argv[1]); 
+    } else { 
+        ker_size = 3; 
+    }
+    if (argv[2]) { 
+        max_size = atoi(argv[2]); 
+    } else { 
+        max_size = 13; 
+    }
 
-/*
-#define NROWS 5
-#define NCOLS 5
-*/
-#define MAX_SIZE 10000
-
-int main()
-{   
     int n;
-
-    int ker_sizes[5] = {3, 11, 25, 51, 101};   
-    int bench_idk;
-        
-    for (bench_idk = 0; bench_idk < 4; bench_idk++)
-    {
-        int ker_size = ker_sizes[bench_idk];
-        printf("Kernel size:%d\nn\ttime\n", ker_size);
-
-        for (n = 16; n < MAX_SIZE; n*=2)
-            {
+        for (n = 6; n < max_size; n++)
+        {
             int j, nloop;
-            int NCOLS = n;
-            int NROWS = n;
+            int NCOLS = pow(2, n);
+            int NROWS = pow(2, n);
             double tmin = -1.0;
-            
-            nloop = 1000/n;
+
+            nloop = 1000/NCOLS;
             if (nloop == 0) {nloop = 1;}
 
             for (j = 0; j < nloop; j++)
                 {
+                double **my_matrix = random_matrix(NROWS, NCOLS);
+                double **kernel = random_matrix(ker_size, ker_size);
+
+                int i, j, k, l;
                 struct timeval init, end;
-                int i,j, k, l, x, y;
-                double ** my_matrix = random_matrix(NROWS, NCOLS);
-                double ** kernel = random_matrix(ker_size, ker_size);
-                double ** result =(double **)malloc((NROWS - (ker_size - 1)) * sizeof(double *));
 
-                for (x = 0; x < NROWS - (ker_size - 1); x++) {
-                    result[x] = malloc((NCOLS - (ker_size - 1)) * sizeof(double));
-                    for (y = 0; y < NCOLS - (ker_size - 1); y++) {
-                        result[x][y] = 0.0; // Initialize each element to 0
+                double bias = ((double)rand() / RAND_MAX) - 0.5;
+                
+                // padding
+                int pad = (ker_size - 1) / 2;
+                int padded_NROWS = NROWS + 2 * pad;
+                int padded_NCOLS = NCOLS + 2 * pad;
+
+                    
+                    double **padded_matrix = (double **)malloc(padded_NROWS * sizeof(double *));
+                    for (i = 0; i < padded_NROWS; i++) {
+                        padded_matrix[i] = (double *)malloc(padded_NCOLS * sizeof(double));
+                        // Initialize the padded matrix rows to zero
+                        memset(padded_matrix[i], 0, padded_NCOLS * sizeof(double));
                     }
-                }
-                /*
-                print_matrix(my_matrix, NROWS, NCOLS);
-                printf("\n");
-                print_matrix(kernel, ker_size, ker_size);
-                printf("\n");*/
-                int row_idx, col_idx; //Not necessary, let's put it for now
-                /*
-                Not really necessary in the sequential version
-                double * flattened_matrix = flatten_matrix(my_matrix, NROWS, NCOLS);
-                */
+                    // Copying the original matrix into the center of the padded matrix
+                    int j2;
+                    for (i = 0; i < NROWS; i++) {
+                        for (j2 = 0; j2 < NCOLS; j2++) {
+                            padded_matrix[i + pad][j2 + pad] = my_matrix[i][j2];
+                        }
+                    }
+                
+                // Output dimensions
+                int result_rows = (padded_NROWS - ker_size) + 1;
+                int result_cols = (padded_NCOLS - ker_size) + 1;
 
+                    double **result = (double **)malloc(result_rows * sizeof(double *));
+                    for (i = 0; i < result_rows; i++) {
+                        result[i] = (double *)malloc(result_cols * sizeof(double));
+                        // Initialize the padded matrix rows to zero
+                        memset(result[i], 0, result_cols * sizeof(double));
+                    }
 
                 gettimeofday(&init, NULL);
 
-                for (i = 0; i < NROWS; i++) //Iterates through the rows of the original matrix
-                {   
-        //            printf("Entering ROW %d\n", i);
-                    for (j = 0; j < NCOLS; j++) //Iterates through the columns
-                    {
-        //                printf("Entering COLUMN %d\n", j);
-
-                        for (k = 0; k < ker_size; k++) //Iterates through the rows of the kernel
-                        {
-                            for (l = 0; l < ker_size; l++) //Iterates through the columns of the kernel
-                            {
-                                row_idx = i - k;//This is because the first row of the kernel only adds to the second line (so -(-1) = +1)
-                                col_idx = j - l;
-
-                                if (row_idx >= 0 && row_idx < NROWS - (ker_size - 1) &&
-                                    col_idx >= 0 && col_idx < NCOLS - (ker_size - 1)) 
-                                    {
-                                        result[row_idx][col_idx] += my_matrix[i][j] * kernel[k][l];
-                                    }
+                for (i = 0; i < result_rows; i++) {
+                    for (j = 0; j < result_cols; j++) {
+                        double sum = bias;
+                        for (k = 0; k < ker_size; k++) {
+                            for (l = 0; l < ker_size; l++) {
+                                int row_idx = i + k;
+                                int col_idx = j + l;
+                                sum += padded_matrix[row_idx][col_idx] * kernel[k][l];
                             }
                         }
+                        result[i][j] = relu(sum);
                     }
                 }
 
                 gettimeofday(&end, NULL);
-                
-                if (tmin < 0 || (end.tv_sec-init.tv_sec) + (end.tv_usec-init.tv_usec)/1000000.0 < tmin) {tmin = (end.tv_sec-init.tv_sec) + (end.tv_usec-init.tv_usec)/1000000.0;}
 
-        //        print_matrix(result, NROWS - (ker_size - 1), NCOLS - (ker_size - 1));
+
+                if (tmin < 0 || (end.tv_sec-init.tv_sec) + (end.tv_usec-init.tv_usec)/1000000.0 < tmin) {tmin = (end.tv_sec-init.tv_sec) + (end.tv_usec-init.tv_usec)/1000000.0;}
                 
+
+
                 free_matrix(my_matrix, NROWS);
                 free_matrix(kernel, ker_size);
-                free_matrix(result, NROWS - (ker_size - 1));
+                free_matrix(padded_matrix, padded_NROWS);
+                free_matrix(result, result_rows);
                 }
-            printf("%d\t%.2f\n", NROWS, tmin);
-            }
+            printf("%d\t%.6f\n", n, tmin); 
         }
+    
     return 0;
 }
-

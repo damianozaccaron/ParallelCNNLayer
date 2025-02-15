@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "random_matrix.c"
+#include "matrix_utilities.c"
 
 int main(int argc, char *argv[])
 {
@@ -25,9 +25,6 @@ int main(int argc, char *argv[])
 
     double bias = ((double)rand() / RAND_MAX) - 0.5;
 
-
-    ker_size = 101;
-
     int comm_sz, my_rank;
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
@@ -39,7 +36,7 @@ int main(int argc, char *argv[])
     }
     int n;
     // n is the size of the input (unpadded) matrix.
-    for (n = 6; n < max_size; n ++)
+    for (n = 6; n < max_size; n++)
     {
         double tmin = -1.0;
 
@@ -47,7 +44,7 @@ int main(int argc, char *argv[])
         int j;
         int NCOLS = pow(2, n);
         int NROWS = pow(2, n);
-        int nloop = 1000 / NCOLS;
+        int nloop = 1000 / NCOLS; //This is used later for the number of repetitions of the process
         if (nloop == 0) { nloop = 1; }
 
         int pad = (ker_size - 1) / 2;
@@ -80,7 +77,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        for (j = 0; j < nloop; j++)
+        for (j = 0; j < nloop; j++) //This loop allows for more stable timings by repeating the process many times for low n
         {
             // padded matrix
             double *local_matrix = (double *)malloc(rows_per_process * padded_NCOLS * sizeof(double));
@@ -103,7 +100,7 @@ int main(int argc, char *argv[])
                 MPI_Abort(MPI_COMM_WORLD, 1);
             }
             
-            double *flattened_padded_matrix = NULL;  // Only process 0
+            double *flattened_padded_matrix = NULL;  //They must be initialized on every process, but are going to be allocated only on rank 0
             double *result = NULL;  // Final result
             int row_idx, col_idx; 
             int i, k;
@@ -134,7 +131,7 @@ int main(int argc, char *argv[])
                 
                 free_matrix(kernel, ker_size);
                 free_matrix(orig_matrix, NROWS);
-                free_matrix(padded_matrix, padded_NROWS);
+                free_matrix(padded_matrix, padded_NROWS);  //We don't need these matrices anymore
                 
                 // Allocate the final result
                 result = (double *)malloc(out_rows * out_cols * sizeof(double));
@@ -148,10 +145,8 @@ int main(int argc, char *argv[])
             t1 = MPI_Wtime();
             // Broadcast the kernel
             MPI_Bcast(flattened_kernel, ker_size * ker_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            // Scatter the flattened padded matrix
-            /*MPI_Scatter(flattened_padded_matrix, rows_per_process * padded_NCOLS, MPI_DOUBLE,
-                        local_matrix, rows_per_process * padded_NCOLS, MPI_DOUBLE, 0, MPI_COMM_WORLD);*/
-            
+
+            // Scatter the padded matrix            
             MPI_Scatterv(flattened_padded_matrix, sendcounts, displs, MPI_DOUBLE,
                          local_matrix, rows_per_process * padded_NCOLS, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
@@ -164,7 +159,7 @@ int main(int argc, char *argv[])
                     col_idx = i % NCOLS - k % ker_size; //Same for the columns
 
                     if (row_idx >= 0 && row_idx < NROWS - (ker_size - 1) &&
-                        col_idx >= 0 && col_idx < NCOLS - (ker_size - 1)) 
+                        col_idx >= 0 && col_idx < NCOLS - (ker_size - 1))  //This condition is to avoid writing outside the result matrix
                             {
                                 local_res[row_idx *(NCOLS - (ker_size - 1)) + col_idx] += local_matrix[i] * flattened_kernel[k];
                             }
@@ -182,9 +177,9 @@ int main(int argc, char *argv[])
                 int l;
                 for (l = 0; l < out_cols*out_rows; l++)
                 {
-                    result[l] = relu(result[l]);
+                    result[l] = relu(result[l] + bias);
                 }
-            } //We apply the activation function to the result matrix.
+            } //We sum the bias and apply the activation function to the result matrix.
 
             t2 = MPI_Wtime() - t1;
             if (tmin < 0 || t2 < tmin) { tmin = t2; }
@@ -195,7 +190,7 @@ int main(int argc, char *argv[])
             }
             free(local_res);
             free(local_matrix);
-            free(flattened_kernel);
+            free(flattened_kernel); 
         } 
         
         if (my_rank == 0) { 

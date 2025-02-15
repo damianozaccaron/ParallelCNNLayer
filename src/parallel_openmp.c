@@ -5,10 +5,7 @@
 #include <omp.h>
 #include <string.h>
 
-#include "random_matrix.c"
-
-#define STRIDE 1
-#define PAD 1
+#include "matrix_utilities.c"
 
 int main(int argc, char *argv[]) {   
     // Needs to be corrected since it doesn't work without inputs
@@ -23,7 +20,7 @@ int main(int argc, char *argv[]) {
     } else { 
         max_size = 14; 
     }
-
+    int pad = (KER_SIZE - 1) / 2;
     
     // Introducing a bias randomly chosen between -0.5 and 0.5 
     // in reality it would be optimised through backpropagation
@@ -54,8 +51,8 @@ int main(int argc, char *argv[]) {
         }
 
         // Implementing padding matrix
-        int padded_rows = NROWS + 2 * PAD;
-        int padded_cols = NCOLS + 2 * PAD;
+        int padded_rows = NROWS + 2 * pad;
+        int padded_cols = NCOLS + 2 * pad;
 
         double *padded_data = calloc(padded_rows * padded_cols, sizeof(double));
         if (!padded_data) {
@@ -74,7 +71,7 @@ int main(int argc, char *argv[]) {
         // Copying the input amtrix into the center of the padded matrix.
         for (i = 0; i < NROWS; i++) {
             for (j = 0; j < NCOLS; j++) {
-                padded_input[i + PAD][j + PAD] = input_matrix[i][j];
+                padded_input[i + pad][j + pad] = input_matrix[i][j];
             }
         }
 
