@@ -8,14 +8,13 @@
 #include "matrix_utilities.c"
 
 int main(int argc, char *argv[]) {   
-    // Needs to be corrected since it doesn't work without inputs
     int KER_SIZE, max_size;
-    if (argv[1]) { 
+    if (argv[1] == 0) { 
         KER_SIZE = atoi(argv[1]); 
     } else { 
         KER_SIZE = 3; 
     }
-    if (argv[2]) { 
+    if (argv[2] == 0) { 
         max_size = atoi(argv[2]); 
     } else { 
         max_size = 14; 
@@ -75,9 +74,9 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // Initializing result matrix (dimensions = floor of (input-kernel+2padding)/stride)+1
-        int result_rows = ((padded_rows - KER_SIZE) / STRIDE) + 1;
-        int result_cols = ((padded_cols - KER_SIZE) / STRIDE) + 1;
+        // Initializing result matrix (dimensions = floor of (input-kernel+2padding)+1
+        int result_rows = ((padded_rows - KER_SIZE)) + 1;
+        int result_cols = ((padded_cols - KER_SIZE)) + 1;
 
         double *result_data = calloc(result_rows * result_cols, sizeof(double));
         if (!result_data) {

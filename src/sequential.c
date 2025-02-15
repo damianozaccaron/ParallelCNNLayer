@@ -10,21 +10,20 @@
 
 int main(int argc, char *argv[])
 {
-    // Needs to be corrected since it doesn't work without inputs
     int ker_size, max_size;
-    if (argv[1]) { 
+    if (argv[1] == 0) { 
         ker_size = atoi(argv[1]); 
     } else { 
         ker_size = 3; 
     }
-    if (argv[2]) { 
+    if (argv[2] == 0) { 
         max_size = atoi(argv[2]); 
     } else { 
         max_size = 13; 
     }
 
     int n;
-        for (n = 6; n < max_size; n++)
+        for (n = 6; n <= max_size; n++)
         {
             int j, nloop;
             int NCOLS = pow(2, n);
