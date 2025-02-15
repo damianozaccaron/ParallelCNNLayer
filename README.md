@@ -13,7 +13,7 @@ The tests folder contains our benchmark results that were also used for our repo
 To run the MPI application it must first be compiled:
 ```
 module load mpich-3.2
-mpicc -g -Wall -o src/mpi_z src/mpi_z.c -lm
+mpicc -g -Wall -o src/mpi src/mpi_z.c -lm
 ```
 Then run the PBS submission:
 ```
