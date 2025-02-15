@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     }
 
     int n;
-        for (n = 15; n < max_size; n++)
+        for (n = 6; n < max_size; n++)
         {
             int j, nloop;
             int NCOLS = pow(2, n);
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
                 free_matrix(padded_matrix, padded_NROWS);
                 free_matrix(result, result_rows);
                 }
-            printf("%d\t%.2f\n", n, tmin); 
+            printf("%d\t%.6f\n", n, tmin); 
         }
     
     return 0;

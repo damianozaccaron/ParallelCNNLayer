@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     
     int n;
     // n is the size of the input (unpadded) matrix.
-    for (n = 7; n <= max_size; n ++){
+    for (n = 14; n <= max_size; n ++){
         int NCOLS = pow(2, n);
         int NROWS = pow(2, n);
 
@@ -116,8 +116,8 @@ int main(int argc, char *argv[]) {
                     // Perform convolution over the kernel window
                     for (k = 0; k < KER_SIZE; k++) {
                         for (l = 0; l < KER_SIZE; l++) {
-                            int row = x * STRIDE + k;
-                            int col = y * STRIDE + l;
+                            int row = x + k;
+                            int col = y + l;
                             sum += padded_input[row][col] * kernel[k][l];
                         }
                     }
