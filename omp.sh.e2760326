@@ -1,1 +1,0 @@
-/var/spool/pbs/mom_priv/jobs/2760326.hpc-head-n1.unitn.it.SC: line 10: 65468 Segmentation fault      (core dumped) /home/damiano.zaccaron/ParallelCNNLayer/src/openmp 3 17
