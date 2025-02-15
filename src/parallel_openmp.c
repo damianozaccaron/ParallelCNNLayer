@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     
     int n;
     // n is the size of the input (unpadded) matrix.
-    for (n = 14; n <= max_size; n ++){
+    for (n = 6; n <= max_size; n ++){
         int NCOLS = pow(2, n);
         int NROWS = pow(2, n);
 
